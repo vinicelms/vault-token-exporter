@@ -4,24 +4,21 @@ import os
 class Config:
 
     def __init__(self):
-        self._file_path = self._check_file_exists()
-        self._parameteres = dict()
+        self._vault_url = None
+        self._vault_token = None
 
     @property
-    def file_path(self):
-        return self._file_path
+    def vault_url(self):
+        return self._vault_url
+
+    @vault_url.setter
+    def vault_url(self, value):
+        self._vault_url = value
 
     @property
-    def parameters(self):
-        return self._parameteres
+    def vault_token(self):
+        return self._vault_token
 
-    def _check_file_exists(self):
-        current_directory = os.path.realpath(__file__)
-        file_name_accepted = ['config.yml', 'config.yaml']
-
-        for item in os.listdir(current_directory):
-            if os.path.isfile(item) and os.access(item, os.R_OK):
-                if item in file_name_accepted:
-                    return item
-
-        return None
+    @vault_token.setter
+    def vault_token(self, value):
+        self._vault_token = value

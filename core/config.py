@@ -90,6 +90,7 @@ class _ConfigFile():
 
         if os.path.exists(file_path) and os.path.isfile(file_path):
             if os.access(file_path, os.R_OK):
+                logging.debug("Configuration file found in path: {}".format(file_path))
                 return file_path
             else:
                 raise UnreadableFile("File unreadable: {}".format(file_path))
@@ -124,16 +125,19 @@ class _ConfigEnvVars():
         if 'VAULT_URL' in os.environ:
             vault_section_dict = {'section' : 'vault', 'parameters' : []}
             vault_section_dict['parameters'].append({'property' : 'url', 'value' : os.environ['VAULT_URL']})
+            logging.debug('Environment Variable \"VAULT_URL\" found')
         else:
             raise EnvironmentError("VAULT_URL environment variable not defined")
 
         if 'VAULT_TOKEN' in os.environ:
             vault_section_dict['parameters'].append({'property' : 'token', 'value' : os.environ['VAULT_TOKEN']})
+            logging.debug('Environment Variable \"VAULT_TOKEN\" found')
         else:
             raise EnvironmentError("VAULT_TOKEN environment variable not defined")
 
         if 'VAULT_ENTRY_LOCATION' in os.environ:
             vault_section_dict['parameters'].append({'property' : 'entry_location', 'value' : os.environ['VAULT_ENTRY_LOCATION']})
+            logging.debug('Environment Variable \"VAULT_ENTRY_LOCATION\" found')
         else:
             raise EnvironmentError("VAULT_ENTRY_LOCATION environment variable not defined")
 

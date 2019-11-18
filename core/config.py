@@ -107,6 +107,10 @@ class _ConfigEnvVars():
     def __init__(self):
         self._config_params = self._get_environment_variables()
 
+    @property
+    def config_params(self):
+        return self._config_params
+
     def _get_environment_variables(self):
         config_dict = {'configurations' : []}
         if 'VAULT_URL' in os.environ:

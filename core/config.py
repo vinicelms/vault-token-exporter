@@ -13,25 +13,57 @@ class _Config:
     def vault_url(self):
         return self._vault_url
 
-    @vault_url.setter
-    def vault_url(self, value):
-        self._vault_url = value
-
     @property
     def vault_token(self):
         return self._vault_token
-
-    @vault_token.setter
-    def vault_token(self, value):
-        self._vault_token = value
 
     @property
     def vault_entry_location(self):
         return self._vault_entry_location
 
-    @vault_entry_location.setter
-    def vault_entry_location(self, value):
-        self._vault_entry_location = value
+    def _get_config(self):
+        try:
+            config_env_vars = _ConfigEnvVars()
+        except EnvironmentError as env_error:
+            config_env_vars = None
+            print("Unavailable Environment Variables: {}".format(env_error))
+
+        try:
+            config_file = _ConfigFile()
+        except UnreadableFile as unread_file:
+            config_file = None
+            print("Configuration file is unreadable: {}".format(unread_file))
+        except FileNotFoundError as file_nf:
+            config_file = None
+            print("Configuration file not exists: {}".format(file_nf))
+
+        if config_env_vars:
+            config_source = config_env_vars.config_params
+        elif config_file:
+            config_source = config_file.config_params
+        else:
+            raise ConfigurationUnavaliable("Configuration unavaliable: Environment Variables and Configuration File")
+
+        self._vault_url = self._get_config_attribute(
+            config_dict=config_source,
+            parameter='url'
+        )
+        self._vault_token = self._get_config_attribute(
+            config_dict=config_source,
+            parameter='token'
+        )
+        self._vault_entry_location = self._get_config_attribute(
+            config_dict=config_source,
+            parameter='entry_location'
+        )
+
+    def _get_config_attribute(self, config_dict, parameter, section='vault'):
+        for config in config_dict['configurations']:
+            if config['section'] == section:
+                for param in config['parameters']:
+                    if param['property'] == parameter:
+                        return param['value']
+        return None
 
 class _ConfigFile():
 
@@ -97,4 +129,7 @@ class _ConfigEnvVars():
         return config_dict
 
 class UnreadableFile(Exception):
+    pass
+
+class ConfigurationUnavaliable(Exception):
     pass

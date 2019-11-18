@@ -2,7 +2,7 @@ import yaml
 import os
 import configparser
 
-class Config:
+class _Config:
 
     def __init__(self):
         self._vault_url = None
@@ -33,36 +33,15 @@ class Config:
     def vault_entry_location(self, value):
         self._vault_entry_location = value
 
-class _ConfigFile(Config):
+class _ConfigFile():
 
     def __init__(self):
-        super(_ConfigFile, self).__init__()
         self._file_path = self._get_file_path()
-        self._get_config()
+        self._config_params = self._get_config()
 
     @property
-    def vault_url(self):
-        return super().vault_url
-
-    @vault_url.setter
-    def vault_url(self, value):
-        super(_ConfigFile, self.__class__).vault_url.fset(self, value)
-
-    @property
-    def vault_token(self):
-        return super().vault_token
-
-    @vault_token.setter
-    def vault_token(self, value):
-        super(_ConfigFile, self.__class__).vault_token.fset(self, value)
-
-    @property
-    def vault_entry_location(self):
-        return super().vault_entry_location
-
-    @vault_entry_location.setter
-    def vault_entry_location(self, value):
-        super(_ConfigFile, self.__class__).vault_entry_location.fset(self, value)
+    def config_params(self):
+        return self._config_params
 
     def _get_file_path(self):
         current_directory = os.path.dirname(__file__)
@@ -80,68 +59,42 @@ class _ConfigFile(Config):
     def _get_config(self):
         config = configparser.ConfigParser()
         config.read(self._file_path)
-        if 'vault' in config.sections():
-            if 'url' in config['vault']:
-                self.vault_url = config['vault']['url']
-            else:
-                raise ValueError("Vault URL not defined in configuration file")
+        self._config_params = {'configurations' : []}
 
-            if 'token' in config['vault']:
-                self.vault_token = config['vault']['token']
-            else:
-                raise ValueError("Vault Token not defined")
+        section_dict = {}
+        for section in config.sections():
+            section_dict = {'section' : section, 'parameters' : []}
+            for item in config[section]:
+                section_dict['parameters'].append({'property' : item, 'value' : config[section][item]})
+            self._config_params['configurations'].append(section_dict)
 
-            if 'entry_location' in config['vault']:
-                self.vault_entry_location = config['vault']['token']
-            else:
-                raise ValueError("Vault Entry Location not defined in configuration file")
-        else:
-            raise ValueError("Vault section not defined")
+        return self.config_params
 
-class _ConfigEnvVars(Config):
+class _ConfigEnvVars():
 
     def __init__(self):
-        super(_ConfigEnvVars, self).__init__()
-
-    @property
-    def vault_url(self):
-        return super().vault_url
-
-    @vault_url.setter
-    def vault_url(self, value):
-        super(_ConfigEnvVars, self.__class__).vault_url.fset(self, value)
-
-    @property
-    def vault_token(self):
-        return super().vault_token
-
-    @vault_token.setter
-    def vault_token(self, value):
-        super(_ConfigEnvVars, self.__class__).vault_token.fset(self, value)
-
-    @property
-    def vault_entry_location(self):
-        return super().vault_entry_location
-
-    @vault_entry_location.setter
-    def vault_entry_location(self, value):
-        super(_ConfigEnvVars, self.__class__).vault_entry_location.fset(self, value)
+        self._config_params = self._get_environment_variables()
 
     def _get_environment_variables(self):
+        config_dict = {'configurations' : []}
         if 'VAULT_URL' in os.environ:
-            self.vault_url = os.environ['VAULT_URL']
+            vault_section_dict = {'section' : 'vault', 'parameters' : []}
+            vault_section_dict['parameters'].append({'url' : os.environ['VAULT_URL']})
         else:
             raise EnvironmentError("VAULT_URL environment variable not defined")
 
         if 'VAULT_TOKEN' in os.environ:
-            self.vault_token = os.environ['VAULT_TOKEN']
+            vault_section_dict['parameters'].append({'token' : os.environ['VAULT_TOKE']})
         else:
             raise EnvironmentError("VAULT_TOKEN environment variable not defined")
 
         if 'VAULT_ENTRY_LOCATION' in os.environ:
-            self.vault_entry_location = os.environ['VAULT_ENTRY_LOCATION']
+            vault_section_dict['parameters'].append({'entry_location' : os.environ['VAULT_ENTRY_LOCATION']})
         else:
             raise EnvironmentError("VAULT_ENTRY_LOCATION environment variable not defined")
+
+        config_dict['configurations'].append(vault_section_dict)
+        return config_dict
 
 class UnreadableFile(Exception):
     pass

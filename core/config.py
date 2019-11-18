@@ -1,6 +1,7 @@
 import yaml
 import os
 import configparser
+import logging
 
 class Config:
 
@@ -27,36 +28,42 @@ class Config:
             config_env_vars = _ConfigEnvVars()
         except EnvironmentError as env_error:
             config_env_vars = None
-            print("Unavailable Environment Variables: {}".format(env_error))
+            logging.warn("Unavailable Environment Variables: {}".format(env_error))
 
         try:
             config_file = _ConfigFile()
         except UnreadableFile as unread_file:
             config_file = None
-            print("Configuration file is unreadable: {}".format(unread_file))
+            logging.warn("Configuration file is unreadable: {}".format(unread_file))
         except FileNotFoundError as file_nf:
             config_file = None
-            print("Configuration file not exists: {}".format(file_nf))
+            logging.warn("Configuration file not exists: {}".format(file_nf))
 
         if config_env_vars:
             config_source = config_env_vars.config_params
+            logging.info("Using configuration from Environment Variables")
         elif config_file:
             config_source = config_file.config_params
+            logging.info("Using configuration from Configuration File")
         else:
+            logging.error("Configuration unavaliable: Environment Variables and Configuration File (config.ini)")
             raise ConfigurationUnavaliable("Configuration unavaliable: Environment Variables and Configuration File")
 
-        self._vault_url = self._get_config_attribute(
-            config_dict=config_source,
-            parameter='url'
-        )
-        self._vault_token = self._get_config_attribute(
-            config_dict=config_source,
-            parameter='token'
-        )
-        self._vault_entry_location = self._get_config_attribute(
-            config_dict=config_source,
-            parameter='entry_location'
-        )
+        try:
+            self._vault_url = self._get_config_attribute(
+                config_dict=config_source,
+                parameter='url'
+            )
+            self._vault_token = self._get_config_attribute(
+                config_dict=config_source,
+                parameter='token'
+            )
+            self._vault_entry_location = self._get_config_attribute(
+                config_dict=config_source,
+                parameter='entry_location'
+            )
+        except ConfigurationUnavaliable as conf_unv:
+            logging.exception(conf_unv)
 
     def _get_config_attribute(self, config_dict, parameter, section='vault'):
         for config in config_dict['configurations']:
@@ -64,7 +71,7 @@ class Config:
                 for param in config['parameters']:
                     if param['property'] == parameter:
                         return param['value']
-        return None
+        raise ConfigurationUnavaliable("Parameter \"{}\" not found in \"{}\" section".format(parameter, section))
 
 class _ConfigFile():
 

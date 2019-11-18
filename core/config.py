@@ -7,6 +7,7 @@ class Config:
     def __init__(self):
         self._vault_url = None
         self._vault_token = None
+        self._vault_entry_location = None
 
     @property
     def vault_url(self):
@@ -23,6 +24,14 @@ class Config:
     @vault_token.setter
     def vault_token(self, value):
         self._vault_token = value
+
+    @property
+    def vault_entry_location(self):
+        return self._vault_entry_location
+
+    @vault_entry_location.setter
+    def vault_entry_location(self, value):
+        self._vault_entry_location = value
 
 class _ConfigFile(Config):
 
@@ -46,6 +55,14 @@ class _ConfigFile(Config):
     @vault_token.setter
     def vault_token(self, value):
         super(_ConfigFile, self.__class__).vault_token.fset(self, value)
+
+    @property
+    def vault_entry_location(self):
+        return super().vault_entry_location
+
+    @vault_entry_location.setter
+    def vault_entry_location(self, value):
+        super(_ConfigFile, self.__class__).vault_entry_location.fset(self, value)
 
     def _get_file_path(self):
         current_directory = os.path.dirname(__file__)
@@ -73,6 +90,11 @@ class _ConfigFile(Config):
                 self.vault_token = config['vault']['token']
             else:
                 raise ValueError("Vault Token not defined")
+
+            if 'entry_location' in config['vault']:
+                self.vault_entry_location = config['vault']['token']
+            else:
+                raise ValueError("Vault Entry Location not defined in configuration file")
         else:
             raise ValueError("Vault section not defined")
 

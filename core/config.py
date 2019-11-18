@@ -2,12 +2,13 @@ import yaml
 import os
 import configparser
 
-class _Config:
+class Config:
 
     def __init__(self):
         self._vault_url = None
         self._vault_token = None
         self._vault_entry_location = None
+        self._get_config()
 
     @property
     def vault_url(self):

@@ -98,5 +98,50 @@ class _ConfigFile(Config):
         else:
             raise ValueError("Vault section not defined")
 
+class _ConfigEnvVars(Config):
+
+    def __init__(self):
+        super(_ConfigEnvVars, self).__init__()
+
+    @property
+    def vault_url(self):
+        return super().vault_url
+
+    @vault_url.setter
+    def vault_url(self, value):
+        super(_ConfigEnvVars, self.__class__).vault_url.fset(self, value)
+
+    @property
+    def vault_token(self):
+        return super().vault_token
+
+    @vault_token.setter
+    def vault_token(self, value):
+        super(_ConfigEnvVars, self.__class__).vault_token.fset(self, value)
+
+    @property
+    def vault_entry_location(self):
+        return super().vault_entry_location
+
+    @vault_entry_location.setter
+    def vault_entry_location(self, value):
+        super(_ConfigEnvVars, self.__class__).vault_entry_location.fset(self, value)
+
+    def _get_environment_variables(self):
+        if 'VAULT_URL' in os.environ:
+            self.vault_url = os.environ['VAULT_URL']
+        else:
+            raise EnvironmentError("VAULT_URL environment variable not defined")
+
+        if 'VAULT_TOKEN' in os.environ:
+            self.vault_token = os.environ['VAULT_TOKEN']
+        else:
+            raise EnvironmentError("VAULT_TOKEN environment variable not defined")
+
+        if 'VAULT_ENTRY_LOCATION' in os.environ:
+            self.vault_entry_location = os.environ['VAULT_ENTRY_LOCATION']
+        else:
+            raise EnvironmentError("VAULT_ENTRY_LOCATION environment variable not defined")
+
 class UnreadableFile(Exception):
     pass

@@ -115,17 +115,17 @@ class _ConfigEnvVars():
         config_dict = {'configurations' : []}
         if 'VAULT_URL' in os.environ:
             vault_section_dict = {'section' : 'vault', 'parameters' : []}
-            vault_section_dict['parameters'].append({'url' : os.environ['VAULT_URL']})
+            vault_section_dict['parameters'].append({'property' : 'url', 'value' : os.environ['VAULT_URL']})
         else:
             raise EnvironmentError("VAULT_URL environment variable not defined")
 
         if 'VAULT_TOKEN' in os.environ:
-            vault_section_dict['parameters'].append({'token' : os.environ['VAULT_TOKE']})
+            vault_section_dict['parameters'].append({'property' : 'token', 'value' : os.environ['VAULT_TOKEN']})
         else:
             raise EnvironmentError("VAULT_TOKEN environment variable not defined")
 
         if 'VAULT_ENTRY_LOCATION' in os.environ:
-            vault_section_dict['parameters'].append({'entry_location' : os.environ['VAULT_ENTRY_LOCATION']})
+            vault_section_dict['parameters'].append({'property' : 'entry_location', 'value' : os.environ['VAULT_ENTRY_LOCATION']})
         else:
             raise EnvironmentError("VAULT_ENTRY_LOCATION environment variable not defined")
 

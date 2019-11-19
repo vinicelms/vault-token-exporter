@@ -29,6 +29,8 @@ class Vault:
         self._vault_token = conf.vault_token
         self._vault_entry_location = conf.vault_entry_location
         self._vault_secret_name = self._vault_entry_location.split('/')[0]
+        if len(self._vault_entry_location.split('/')) < 2:
+            raise ReferenceError("Entry Location must have at least 2 structures")
 
     def _get_list_keys(self):
         request_headers = {"X-Vault-Token" : self._vault_token}

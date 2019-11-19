@@ -65,7 +65,7 @@ class Vault:
             self.vault_url,
             self.vault_secret_name,
             entry_location,
-            entry
+            entry_key
         )
         data_dict = {'service_keys' : []}
         req = requests.get(call_url, headers=request_headers)

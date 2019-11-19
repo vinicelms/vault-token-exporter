@@ -57,11 +57,14 @@ class Vault:
         else:
             req.raise_for_status()
 
-    def _get_key_info(self, entry):
+    def _get_key_info(self, entry_key):
         request_headers = {"X-Vault-Token" : self._vault_token}
-        call_url = "{}/v1/{}/data/{}".format(
+        entry_location = self.vault_entry_location.split('/')[1:]
+        entry_location = '/'.join(entry_location)
+        call_url = "{}/v1/{}/data/{}/{}".format(
             self.vault_url,
             self.vault_secret_name,
+            entry_location,
             entry
         )
         data_dict = {'service_keys' : []}

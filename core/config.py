@@ -141,7 +141,21 @@ class _ConfigEnvVars():
         else:
             raise EnvironmentError("VAULT_ENTRY_LOCATION environment variable not defined")
 
+        if 'VAULT_ENTRY_MAP_NAME' in os.environ:
+            entry_map_section_dict = {'section' : 'entry_map', 'parameters' : []}
+            entry_map_section_dict['parameters'].append({'property' : 'name', 'value' : os.environ['VAULT_ENTRY_MAP_NAME']})
+            logging.debug("Environment Variable \"VAULT_ENTRY_MAP_NAME\" found")
+        else:
+            raise EnvironmentError("VAULT_ENTRY_MAP_NAME environment variable not defined")
+
+        if 'VAULT_ENTRY_MAP_TOKEN' in os.environ:
+            entry_map_section_dict['parameters'].append({'property' : 'token', 'value' : os.environ['VAULT_ENTRY_MAP_TOKEN']})
+            logging.debug("Environment Variable \"VAULT_ENTRY_MAP_TOKEN\" found")
+        else:
+            raise EnvironmentError("VAULT_ENTRY_MAP_TOKEN environment variable not defined")
+
         config_dict['configurations'].append(vault_section_dict)
+        config_dict['configurations'].append(entry_map_section_dict)
         return config_dict
 
 class UnreadableFile(Exception):

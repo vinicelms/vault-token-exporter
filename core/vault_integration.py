@@ -1,5 +1,6 @@
 import requests
 import json
+import logging
 from config import Config
 
 class Vault:
@@ -83,6 +84,39 @@ class Vault:
                 raise ReferenceError("Key data unavailable")
         else:
             req.raise_for_status()
+
+    def get_key_data_from_vault(self):
+        key_data_list = []
+        try:
+            key_list = self._get_list_keys()
+        except EntryKeyUnlistable as eku:
+            logging.error(eku)
+        except Exception as e:
+            logging.exception(e)
+
+        try:
+            for key in key_list:
+                vault_info = _VaultKeyInfo()
+                key_info = self._get_key_info(entry_key=key)
+                vault_info.name = key_info['name']
+                vault_info.set_token(key_info['token'])
+                key_data_list.append(vault_info)
+        except ReferenceError as re:
+            logging.error(re)
+        except Exception as e:
+            logging.exception(e)
+
+        return key_data_list
+
+class _VaultKeyInfo:
+
+    def __init__(self):
+        self.name = None
+        self.__token = None
+        self.expiration_time = None
+
+    def set_token(self, value):
+        self.__token = value
 
 class EntryKeyUnlistable(Exception):
     pass

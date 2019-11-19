@@ -1,6 +1,6 @@
 import requests
+import json
 from config import Config
-
 
 class Vault:
 
@@ -29,3 +29,27 @@ class Vault:
         self._vault_token = conf.vault_token
         self._vault_entry_location = conf.vault_entry_location
         self._vault_secret_name = self._vault_entry_location.split('/')[0]
+
+    def _get_list_keys(self):
+        request_headers = {"X-Vault-Token" : self._vault_token}
+        entry_to_list = self.vault_entry_location.split('/')[1:]
+        entry_to_list = '/'.join(entry_to_list)
+        call_url = "{}/v1/{}/metadata/{}".format(
+            self.vault_url,
+            self.vault_secret_name,
+            entry_to_list
+        )
+        req = requests.request('LIST', call_url, headers=request_headers)
+        if req.status_code == 200:
+            request_content = req.json()
+            if 'data' in request_content and 'keys' in request_content['data']:
+                return request_content['data']['keys']
+            else:
+                raise ReferenceError("Key list unavailable")
+        elif req.status_code == 404:
+            raise EntryKeyUnlistable("Entry Key \"{}\" unlistable".format(entry_to_list))
+        else:
+            req.raise_for_status()
+
+class EntryKeyUnlistable(Exception):
+    pass

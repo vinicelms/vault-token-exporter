@@ -57,5 +57,29 @@ class Vault:
         else:
             req.raise_for_status()
 
+    def _get_key_info(self, entry):
+        request_headers = {"X-Vault-Token" : self._vault_token}
+        call_url = "{}/v1/{}/data/{}".format(
+            self.vault_url,
+            self.vault_secret_name,
+            entry
+        )
+        data_dict = {'service_keys' : []}
+        req = requests.get(call_url, headers=request_headers)
+        if req.status_code == 200:
+            request_content = req.content.json()
+            if 'data' in request_content and 'data' in request_content['data']:
+                data_dict['service_keys'].append(
+                    {
+                        'name' : request_content['data']['data'][self._entry_map_name],
+                        'token' : request_content['data']['data'][self._entry_map_token]
+                    }
+                )
+                return data_dict
+            else:
+                raise ReferenceError("Key data unavailable")
+        else:
+            req.raise_for_status()
+
 class EntryKeyUnlistable(Exception):
     pass

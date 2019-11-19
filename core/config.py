@@ -9,6 +9,8 @@ class Config:
         self._vault_url = None
         self._vault_token = None
         self._vault_entry_location = None
+        self._vault_entry_map_name = None
+        self._vault_entry_map_token = None
         self._get_config()
 
     @property
@@ -22,6 +24,14 @@ class Config:
     @property
     def vault_entry_location(self):
         return self._vault_entry_location
+
+    @property
+    def vault_entry_map_name(self):
+        return self._vault_entry_map_name
+
+    @property
+    def vault_entry_map_token(self):
+        return self._vault_entry_map_token
 
     def _get_config(self):
         try:
@@ -61,6 +71,16 @@ class Config:
             self._vault_entry_location = self._get_config_attribute(
                 config_dict=config_source,
                 parameter='entry_location'
+            )
+            self._vault_entry_map_name = self._get_config_attribute(
+                config_dict=config_source,
+                parameter='name',
+                section='entry_map'
+            )
+            self._vault_entry_map_token = self._get_config_attribute(
+                config_dict=config_source,
+                parameter='token',
+                section='entry_map'
             )
         except ConfigurationUnavaliable as conf_unv:
             logging.exception(conf_unv)

@@ -68,17 +68,15 @@ class Vault:
             entry_location,
             entry_key
         )
-        data_dict = {'service_keys' : []}
+        data_dict = {}
         req = requests.get(call_url, headers=request_headers)
         if req.status_code == 200:
             request_content = json.loads(req.content.decode('utf-8'))
             if 'data' in request_content and 'data' in request_content['data']:
-                data_dict['service_keys'].append(
-                    {
-                        'name' : request_content['data']['data'][self._entry_map_name],
-                        'token' : request_content['data']['data'][self._entry_map_token]
-                    }
-                )
+                data_dict = {
+                    'name' : request_content['data']['data'][self._entry_map_name],
+                    'token' : request_content['data']['data'][self._entry_map_token]
+                }
                 return data_dict
             else:
                 raise ReferenceError("Key data unavailable")

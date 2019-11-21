@@ -89,7 +89,7 @@ class Vault:
         call_url = "{}/v1/auth/token/lookup".format(self.vault_url)
         req = requests.post(call_url, headers=request_headers, data=json.dumps(payload))
         if req.status_code == 200:
-            request_content = req.content.decode('utf-8')
+            request_content = json.loads(req.content.decode('utf-8'))
             if 'data' in request_content and 'ttl' in request_content['data']:
                 return request_content['data']['ttl']
             else:

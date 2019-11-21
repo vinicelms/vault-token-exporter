@@ -72,16 +72,19 @@ class Config:
                 config_dict=config_source,
                 parameter='entry_location'
             )
-            self._vault_entry_map_name = self._get_config_attribute(
-                config_dict=config_source,
-                parameter='name',
-                section='entry_map'
-            )
             self._vault_entry_map_token = self._get_config_attribute(
                 config_dict=config_source,
                 parameter='token',
                 section='entry_map'
             )
+            try:
+                self._vault_entry_map_name = self._get_config_attribute(
+                    config_dict=config_source,
+                    parameter='name',
+                    section='entry_map'
+                )
+            except ConfigurationUnavaliable as cf_un:
+                pass
         except ConfigurationUnavaliable as conf_unv:
             logging.exception(conf_unv)
 
@@ -161,18 +164,18 @@ class _ConfigEnvVars():
         else:
             raise EnvironmentError("VAULT_ENTRY_LOCATION environment variable not defined")
 
-        if 'VAULT_ENTRY_MAP_NAME' in os.environ:
-            entry_map_section_dict = {'section' : 'entry_map', 'parameters' : []}
-            entry_map_section_dict['parameters'].append({'property' : 'name', 'value' : os.environ['VAULT_ENTRY_MAP_NAME']})
-            logging.debug("Environment Variable \"VAULT_ENTRY_MAP_NAME\" found")
-        else:
-            raise EnvironmentError("VAULT_ENTRY_MAP_NAME environment variable not defined")
-
         if 'VAULT_ENTRY_MAP_TOKEN' in os.environ:
+            entry_map_section_dict = {'section' : 'entry_map', 'parameters' : []}
             entry_map_section_dict['parameters'].append({'property' : 'token', 'value' : os.environ['VAULT_ENTRY_MAP_TOKEN']})
             logging.debug("Environment Variable \"VAULT_ENTRY_MAP_TOKEN\" found")
         else:
             raise EnvironmentError("VAULT_ENTRY_MAP_TOKEN environment variable not defined")
+
+        if 'VAULT_ENTRY_MAP_NAME' in os.environ:
+            entry_map_section_dict['parameters'].append({'property' : 'name', 'value' : os.environ['VAULT_ENTRY_MAP_NAME']})
+            logging.debug("Environment Variable \"VAULT_ENTRY_MAP_NAME\" found")
+        else:
+            logging.warn("Environment Variable \"VAULT_ENTRY_MAP_NAME\" not found")
 
         config_dict['configurations'].append(vault_section_dict)
         config_dict['configurations'].append(entry_map_section_dict)

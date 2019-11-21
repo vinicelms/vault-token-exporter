@@ -71,7 +71,7 @@ class Vault:
         data_dict = {'service_keys' : []}
         req = requests.get(call_url, headers=request_headers)
         if req.status_code == 200:
-            request_content = req.content.json()
+            request_content = json.loads(req.content.decode('utf-8'))
             if 'data' in request_content and 'data' in request_content['data']:
                 data_dict['service_keys'].append(
                     {

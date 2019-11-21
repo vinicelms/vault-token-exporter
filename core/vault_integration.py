@@ -85,6 +85,20 @@ class Vault:
         else:
             req.raise_for_status()
 
+    def __get_token_expiration_time(self, token):
+        request_headers = {"X-Vault-Token" : self.__vault_token}
+        payload = {'token' : token}
+        call_url = "{}/v1/auth/token/lookup".format(self.vault_url)
+        req = requests.post(call_url, headers=request_headers, data=json.dumps(payload))
+        if req.status_code == 200:
+            request_content = req.content.decode('utf-8')
+            if 'data' in request_content and 'ttl' in request_content['data']:
+                return request_content['data']['ttl']
+            else:
+                raise ReferenceError("Key TTL unavailable")
+        else:
+            req.raise_for_status()
+
     def get_key_data_from_vault(self):
         key_data_list = []
         try:
@@ -100,6 +114,7 @@ class Vault:
                 key_info = self.__get_key_info(entry_key=key)
                 vault_info.name = key_info['name']
                 vault_info.set_token(key_info['token'])
+                vault_info.expiration_time = self.__get_token_expiration_time(key_info['token'])
                 key_data_list.append(vault_info)
         except ReferenceError as re:
             logging.error(re)

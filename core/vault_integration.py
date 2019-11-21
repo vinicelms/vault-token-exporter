@@ -74,26 +74,27 @@ class Vault:
             request_content = json.loads(req.content.decode('utf-8'))
             if 'data' in request_content and 'data' in request_content['data']:
                 data_dict = {
-                    'name' : request_content['data']['data'][self._entry_map_name],
                     'token' : request_content['data']['data'][self._entry_map_token]
                 }
+                if self._entry_map_name:
+                    data_dict['name'] = request_content['data']['data'][self._entry_map_name]
                 return data_dict
             else:
                 raise ReferenceError("Key data unavailable")
         else:
             req.raise_for_status()
 
-    def __get_token_expiration_time(self, token):
+    def __get_token_info(self, token, data_content):
         request_headers = {"X-Vault-Token" : self.__vault_token}
         payload = {'token' : token}
         call_url = "{}/v1/auth/token/lookup".format(self.vault_url)
         req = requests.post(call_url, headers=request_headers, data=json.dumps(payload))
         if req.status_code == 200:
             request_content = json.loads(req.content.decode('utf-8'))
-            if 'data' in request_content and 'ttl' in request_content['data']:
-                return request_content['data']['ttl']
+            if 'data' in request_content and data_content in request_content['data']:
+                return request_content['data'][data_content]
             else:
-                raise ReferenceError("Key TTL unavailable")
+                raise ReferenceError("Key {} unavailable".format(data_content))
         else:
             req.raise_for_status()
 
@@ -110,9 +111,16 @@ class Vault:
             for key in key_list:
                 vault_info = _VaultKeyInfo()
                 key_info = self.__get_key_info(entry_key=key)
-                vault_info.name = key_info['name']
                 vault_info.set_token(key_info['token'])
-                vault_info.expiration_time = self.__get_token_expiration_time(key_info['token'])
+                vault_info.expiration_time = self.__get_token_info(
+                    token=key_info['token'], data_content='ttl'
+                )
+                if 'name' in key_info:
+                    vault_info.name = key_info['name']
+                else:
+                    vault_info.name = self.__get_token_info(
+                        token=key_info['token'], data_content='display_name'
+                    )
                 key_data_list.append(vault_info)
         except ReferenceError as re:
             logging.error(re)

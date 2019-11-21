@@ -16,11 +16,11 @@ class CustomVaultExporter:
             gauge = GaugeMetricFamily(
                 name="vault_token_expire_time",
                 documentation="Collect time remaining to expire Vault service token",
-                labels=['display_name']
+                labels=['display_name', 'time_format']
             )
 
             gauge.add_metric(
-                labels=[token_info.name],
+                labels=[token_info.name, 'minute'],
                 value=token_info.expiration_time
             )
             yield gauge

@@ -115,6 +115,7 @@ class Vault:
                 vault_info.expiration_time = self.__get_token_info(
                     token=key_info['token'], data_content='ttl'
                 )
+                vault_info.expiration_time = vault_info.expiration_time / 60
                 if 'name' in key_info:
                     vault_info.name = key_info['name']
                 else:

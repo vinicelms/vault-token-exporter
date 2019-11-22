@@ -107,8 +107,8 @@ class Vault:
         except Exception as e:
             logging.exception(e)
 
-        try:
-            for key in key_list:
+        for key in key_list:
+            try:
                 vault_info = _VaultKeyInfo()
                 key_info = self.__get_key_info(entry_key=key)
                 vault_info.set_token(key_info['token'])
@@ -123,10 +123,10 @@ class Vault:
                         token=key_info['token'], data_content='display_name'
                     )
                 key_data_list.append(vault_info)
-        except ReferenceError as re:
-            logging.error(re)
-        except Exception as e:
-            logging.exception(e)
+            except ReferenceError as re:
+                logging.error(re)
+            except Exception as e:
+                logging.error("Error collecting information from entry key: \"{}\"\n{}".format(key, e))
 
         return key_data_list
 

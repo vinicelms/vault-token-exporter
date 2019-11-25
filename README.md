@@ -21,13 +21,13 @@ This will require 2 perspectives of information:
 
 > If the Token display name is not entered, it will default to **display_name** when the key was created
 
-Resumindo o processo que o código executará:
-1. Obtém as configurações (seja através do arquivo ou variáveis de ambiente)
-2. Lista a entrada definida na opção "entry_location"
-3. Lê cada entrada da listagem retornada no passo 
-4. Coleta o valor da configuração "entry_map_token" para obter o token a ser verificado
-5. Caso a opção "entry_map_name" seja definida, vai atribuir como nome.
-6. Coleta as informações do token retornado no passo 
+Summing up the process that the code will perform:
+1. Get settings (either through file or environment variables)
+2. Lists entries defined with the "entry_location" setting
+3. Read each listing entry returned in step 2
+4. Collect the value of the "entry_map_token" setting to get the token to check.
+5. If "entry_map_name" is set, it will be named.
+6. Collects the token information returned in step 3, returning the time to expire the token and also the "display_name" if the "entry_map_name" setting has not been set.
 
 ### Externalization of settings
 
